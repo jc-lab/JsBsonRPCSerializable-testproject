@@ -1,0 +1,6 @@
+[submodule "JsBsonRPCSerializable"]
+	path = JsBsonRPCSerializable
+	url = https://github.com/jc-lab/JsBsonRPCSerializable.git
+[submodule "JsCPPUtils"]
+	path = JsCPPUtils
+	url = https://github.com/jc-lab/JsCPPUtils.git

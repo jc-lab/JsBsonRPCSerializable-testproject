@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="JsBsonRPCSerializable">
+      <UniqueIdentifier>{bc57bfd8-e03e-4847-929e-cb401d9589f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="JsBsonRPCSerializable\plugins">
+      <UniqueIdentifier>{46ad42b7-ca21-4f72-bff6-c5caf967ba82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="JsCPPUtils">
+      <UniqueIdentifier>{d7630f28-62ed-4aa4-b6d7-9e879a91779c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="JsBsonRPCSerializable\Serializable.cpp">
+      <Filter>JsBsonRPCSerializable</Filter>
+    </ClCompile>
+    <ClCompile Include="JsBsonRPCSerializable\plugins\JSONObjectMapper.cpp">
+      <Filter>JsBsonRPCSerializable\plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="JsCPPUtils\Base64.cpp">
+      <Filter>JsCPPUtils</Filter>
+    </ClCompile>
+    <ClCompile Include="JsCPPUtils\Common.cpp">
+      <Filter>JsCPPUtils</Filter>
+    </ClCompile>
+    <ClCompile Include="JsCPPUtils\Lockable.cpp">
+      <Filter>JsCPPUtils</Filter>
+    </ClCompile>
+    <ClCompile Include="JsCPPUtils\SmartPointer.cpp">
+      <Filter>JsCPPUtils</Filter>
+    </ClCompile>
+    <ClCompile Include="JsCPPUtils\StringEncoding.cpp">
+      <Filter>JsCPPUtils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="JsBsonRPCSerializable\Serializable.h">
+      <Filter>JsBsonRPCSerializable</Filter>
+    </ClInclude>
+    <ClInclude Include="JsBsonRPCSerializable\plugins\JSONObjectMapper.h">
+      <Filter>JsBsonRPCSerializable\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="JsCPPUtils\Base64.h">
+      <Filter>JsCPPUtils</Filter>
+    </ClInclude>
+    <ClInclude Include="JsCPPUtils\Common.h">
+      <Filter>JsCPPUtils</Filter>
+    </ClInclude>
+    <ClInclude Include="JsCPPUtils\Endian.h">
+      <Filter>JsCPPUtils</Filter>
+    </ClInclude>
+    <ClInclude Include="JsCPPUtils\Lockable.h">
+      <Filter>JsCPPUtils</Filter>
+    </ClInclude>
+    <ClInclude Include="JsCPPUtils\SmartPointer.h">
+      <Filter>JsCPPUtils</Filter>
+    </ClInclude>
+    <ClInclude Include="JsCPPUtils\StringBuffer.h">
+      <Filter>JsCPPUtils</Filter>
+    </ClInclude>
+    <ClInclude Include="JsCPPUtils\StringEncoding.h">
+      <Filter>JsCPPUtils</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
