@@ -19,6 +19,19 @@ void dump(std::vector<unsigned char> &buffer)
 	printf("\n");
 }
 
+class TestSubClassB : public JsBsonRPC::Serializable
+{
+public:
+	JsBsonRPC::SType<int32_t> a;
+	JsBsonRPC::SType<std::string> b;
+
+	TestSubClassB() : Serializable("test2", 101)
+	{
+		this->serializableMapMember("a", a);
+		this->serializableMapMember("b", b);
+	}
+};
+
 class TestClassA : public JsBsonRPC::Serializable
 {
 public:
@@ -32,6 +45,9 @@ public:
 	JsBsonRPC::SType<double> xd;
 	JsBsonRPC::SType<std::map<std::string, std::string> > xf;
 
+	JsBsonRPC::SType<TestSubClassB> sub;
+	JsBsonRPC::SType<std::map<std::string, TestSubClassB> > submap;
+
 	TestClassA() : Serializable("test", 101)
 	{
 		this->serializableMapMember("a", a);
@@ -43,6 +59,8 @@ public:
 		this->serializableMapMember("xc", xc);
 		this->serializableMapMember("xd", xd);
 		this->serializableMapMember("xf", xf);
+		this->serializableMapMember("sub", sub);
+		this->serializableMapMember("submap", submap);
 	}
 };
 
@@ -85,6 +103,15 @@ int main()
 	testA.xf.ref()["cccc"] = "c";
 	testA.xf.ref()["ee"] = "ad";
 	testA.xf.ref()["dd"] = "aae";
+
+	testA.sub.ref().a.set(10);
+	testA.sub.ref().b.set("SUB TEXT!");
+
+	testA.submap.ref()["a"].a.set(10);
+	testA.submap.ref()["a"].b.set("20");
+
+	testA.submap.ref()["b"].a.set(10);
+	testA.submap.ref()["b"].b.set("40");
 
 	payload.clear();
 	testA.serialize(payload);
