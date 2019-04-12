@@ -32,8 +32,20 @@ public:
 	}
 };
 
+class TestSubClassBCreateFactory : public JsBsonRPC::SerializableSmartpointerCreateFactory
+{
+public:
+	JsCPPUtils::SmartPointer<JsBsonRPC::Serializable> create()
+	{
+		return new TestSubClassB();
+	}
+};
+
 class TestClassA : public JsBsonRPC::Serializable
 {
+private:
+	TestSubClassBCreateFactory testBFactory;
+
 public:
 	JsBsonRPC::SType<int32_t> a;
 	JsBsonRPC::SType<int64_t> b;
@@ -46,6 +58,7 @@ public:
 	JsBsonRPC::SType<std::map<std::string, std::string> > xf;
 
 	JsBsonRPC::SType<TestSubClassB> sub;
+	JsBsonRPC::SType< std::list< JsCPPUtils::SmartPointer<TestSubClassB> > > sublist;
 	JsBsonRPC::SType<std::map<std::string, TestSubClassB> > submap;
 
 	TestClassA() : Serializable("test", 101)
@@ -60,6 +73,7 @@ public:
 		this->serializableMapMember("xd", xd);
 		this->serializableMapMember("xf", xf);
 		this->serializableMapMember("sub", sub);
+		this->serializableMapMember("sublist", sublist).setCreateFactory(&testBFactory);
 		this->serializableMapMember("submap", submap);
 	}
 };
@@ -112,6 +126,20 @@ int main()
 
 	testA.submap.ref()["b"].a.set(10);
 	testA.submap.ref()["b"].b.set("40");
+
+	{
+		JsCPPUtils::SmartPointer<TestSubClassB> a = new TestSubClassB();
+		a->a.set(1);
+		a->b.set("a");
+		testA.sublist.ref().push_back(a);
+	}
+
+	{
+		JsCPPUtils::SmartPointer<TestSubClassB> a = new TestSubClassB();
+		a->a.set(2);
+		a->b.set("b");
+		testA.sublist.ref().push_back(a);
+	}
 
 	payload.clear();
 	testA.serialize(payload);
