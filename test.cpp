@@ -8,6 +8,17 @@
 #include "JsBsonRPCSerializable/Serializable.h"
 #include "JsBsonRPCSerializable/plugins/JSONObjectMapper.h"
 
+
+class TestSubClassCommon : public JsBsonRPC::Serializable
+{
+public:
+	TestSubClassCommon() : Serializable("x", 10) {}
+
+	TestSubClassCommon(const char *name) : Serializable(name, 101)
+	{
+	}
+};
+
 void dump(std::vector<unsigned char> &buffer)
 {
 	size_t i = 0;
@@ -19,16 +30,42 @@ void dump(std::vector<unsigned char> &buffer)
 	printf("\n");
 }
 
-class TestSubClassB : public JsBsonRPC::Serializable
+class TestSubClassA : public TestSubClassCommon
 {
 public:
 	JsBsonRPC::SType<int32_t> a;
 	JsBsonRPC::SType<std::string> b;
+	JsBsonRPC::SType<std::string> sa;
 
-	TestSubClassB() : Serializable("test2", 101)
+	TestSubClassA() : TestSubClassCommon("testA")
 	{
 		this->serializableMapMember("a", a);
 		this->serializableMapMember("b", b);
+		this->serializableMapMember("sa", sa);
+	}
+};
+
+class TestSubClassACreateFactory : public JsBsonRPC::SerializableSmartpointerCreateFactory
+{
+public:
+	JsCPPUtils::SmartPointer<JsBsonRPC::Serializable> create()
+	{
+		return new TestSubClassA();
+	}
+};
+
+class TestSubClassB : public TestSubClassCommon
+{
+public:
+	JsBsonRPC::SType<int32_t> a;
+	JsBsonRPC::SType<std::string> b;
+	JsBsonRPC::SType<std::string> sb;
+
+	TestSubClassB() : TestSubClassCommon("testB")
+	{
+		this->serializableMapMember("a", a);
+		this->serializableMapMember("b", b);
+		this->serializableMapMember("sb", sb);
 	}
 };
 
@@ -41,10 +78,28 @@ public:
 	}
 };
 
+class DynamicCreateFactory : public JsBsonRPC::SerializableSmartpointerCreateFactory
+{
+public:
+	JsCPPUtils::SmartPointer<JsBsonRPC::Serializable> create()
+	{
+		return NULL;
+	}
+	JsCPPUtils::SmartPointer<JsBsonRPC::Serializable> create(const std::string& name, int64_t serialVersionUID) override
+	{
+		if (name == "testA")
+			return new TestSubClassA();
+		if (name == "testB")
+			return new TestSubClassB();
+		return NULL;
+	}
+};
+
 class TestClassA : public JsBsonRPC::Serializable
 {
 private:
 	TestSubClassBCreateFactory testBFactory;
+	DynamicCreateFactory dynamicFactory;
 
 public:
 	JsBsonRPC::SType<int32_t> a;
@@ -61,6 +116,8 @@ public:
 	JsBsonRPC::SType< std::list< JsCPPUtils::SmartPointer<TestSubClassB> > > sublist;
 	JsBsonRPC::SType<std::map<std::string, TestSubClassB> > submap;
 
+	JsBsonRPC::SType< JsCPPUtils::SmartPointer<TestSubClassCommon> > dynamic;
+
 	TestClassA() : Serializable("test", 101)
 	{
 		this->serializableMapMember("a", a);
@@ -75,6 +132,37 @@ public:
 		this->serializableMapMember("sub", sub);
 		this->serializableMapMember("sublist", sublist).setCreateFactory(&testBFactory);
 		this->serializableMapMember("submap", submap);
+		this->serializableMapMember("dynamic", dynamic).setCreateFactory(&dynamicFactory);
+	}
+};
+
+class TestClassASmall : public JsBsonRPC::Serializable
+{
+private:
+	TestSubClassBCreateFactory testBFactory;
+
+public:
+	JsBsonRPC::SType<int32_t> a;
+	JsBsonRPC::SType<int64_t> b;
+	JsBsonRPC::SType<double> d;
+	JsBsonRPC::SType<std::string> e;
+	JsBsonRPC::SType<std::vector<char> > xa; // binary
+	JsBsonRPC::SType<std::list<std::string> > xb;
+	JsBsonRPC::SType<std::list< std::vector<char> > > xc;
+	JsBsonRPC::SType<double> xd;
+	JsBsonRPC::SType<std::map<std::string, std::string> > xf;
+
+	TestClassASmall() : Serializable("test", 101)
+	{
+		this->serializableMapMember("a", a);
+		this->serializableMapMember("b", b);
+		this->serializableMapMember("d", d);
+		this->serializableMapMember("e", e);
+		this->serializableMapMember("xa", xa);
+		this->serializableMapMember("xb", xb);
+		this->serializableMapMember("xc", xc);
+		this->serializableMapMember("xd", xd);
+		this->serializableMapMember("xf", xf);
 	}
 };
 
@@ -87,6 +175,7 @@ int main()
 	TestClassA testA;
 	TestClassA testB;
 	TestClassA testC;
+	TestClassASmall testASmall;
 
 	testA.a.set(0xff);
 	testA.b.set(0x1000000000000002);
@@ -127,6 +216,8 @@ int main()
 	testA.submap.ref()["b"].a.set(10);
 	testA.submap.ref()["b"].b.set("40");
 
+	testA.dynamic.ref() = new TestSubClassB();
+
 	{
 		JsCPPUtils::SmartPointer<TestSubClassB> a = new TestSubClassB();
 		a->a.set(1);
@@ -147,12 +238,18 @@ int main()
 
 	testB.deserialize(payload);
 
+	testASmall.deserialize(payload);
+
 	JsBsonRPC::JSONObjectMapper objectMapper;
 	std::string jsondata = objectMapper.serialize(&testA);
 
-	objectMapper.deserialize(&testC, jsondata);
+	std::string name;
+	int64_t sver;
+	JsBsonRPC::Serializable::readMetadata(payload, 0, &name, &sver);
 
 	printf("JSON : %s\n", jsondata.c_str());
+
+	objectMapper.deserialize(&testC, jsondata);
 
 	return 0;
 }
